@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+
+<dict>
+
+  <key>CFBundleName</key>
+  <string>chibepusham</string>
+
+  <key>CFBundleDisplayName</key>
+  <string>AR Try-On App</string>
+
+  <key>CFBundleIdentifier</key>
+  <string>com.yourname.chibepusham</string>
+
+  <key>CFBundleVersion</key>
+  <string>1</string>
+
+  <key>CFBundleShortVersionString</key>
+  <string>1.0.0</string>
+
+  <!-- 📷 CAMERA PERMISSION (ضروری) -->
+  <key>NSCameraUsageDescription</key>
+  <string>This app uses camera for AR try-on experience</string>
+
+  <!-- 🎤 MICROPHONE (اگر voice داری) -->
+  <key>NSMicrophoneUsageDescription</key>
+  <string>This app may use microphone for voice features</string>
+
+  <!-- 🌐 INTERNET -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+  </dict>
+
+</dict>
+
+</plist>
