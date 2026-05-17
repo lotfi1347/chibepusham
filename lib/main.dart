@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(const ChiBepushamApp());
@@ -10,66 +12,89 @@ class ChiBepushamApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ChiBepusham Demo',
+      title: 'ChiBepusham',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const DemoPage(),
+      home: const HomePage(),
     );
   }
 }
 
-class DemoPage extends StatefulWidget {
-  const DemoPage({super.key});
+class ClosetItem {
+  final String name;
+  final Uint8List imageBytes;
 
-  @override
-  State<DemoPage> createState() => _DemoPageState();
+  ClosetItem({
+    required this.name,
+    required this.imageBytes,
+  });
 }
 
-class _DemoPageState extends State<DemoPage> {
-  String category = "Shirts";
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  int shirt = 0;
-  int pants = 0;
-  int shoes = 0;
-  int hat = 0;
-  int glasses = 0;
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-  final List<Color> shirtColors = [Colors.orange, Colors.green, Colors.blue, Colors.purple];
-  final List<Color> pantsColors = [Colors.blueGrey, Colors.brown, Colors.black87, Colors.indigo];
-  final List<Color> shoesColors = [Colors.white, Colors.red, Colors.yellow, Colors.cyan];
-  final List<Color> hatColors = [Colors.redAccent, Colors.amber, Colors.pink, Colors.teal];
-  final List<Color> glassesColors = [Colors.lightBlueAccent, Colors.white, Colors.deepPurple, Colors.lime];
+class _HomePageState extends State<HomePage> {
+  final ImagePicker picker = ImagePicker();
 
-  List<Color> getCurrentColors() {
-    if (category == "Shirts") return shirtColors;
-    if (category == "Pants") return pantsColors;
-    if (category == "Shoes") return shoesColors;
-    if (category == "Hats") return hatColors;
-    return glassesColors;
+  String selectedCategory = "Shirts";
+
+  final Map<String, List<ClosetItem>> closets = {
+    "Shirts": [],
+    "Pants": [],
+    "Shoes": [],
+    "Hats": [],
+    "Glasses": [],
+  };
+
+  final Map<String, ClosetItem?> selectedItems = {
+    "Shirts": null,
+    "Pants": null,
+    "Shoes": null,
+    "Hats": null,
+    "Glasses": null,
+  };
+
+  Future<void> addItemToCloset() async {
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+
+    final bytes = await picked.readAsBytes();
+
+    final item = ClosetItem(
+      name: "$selectedCategory ${closets[selectedCategory]!.length + 1}",
+      imageBytes: bytes,
+    );
+
+    setState(() {
+      closets[selectedCategory]!.add(item);
+      selectedItems[selectedCategory] = item;
+    });
   }
 
-  void selectItem(int index) {
+  void selectCategory(String category) {
     setState(() {
-      if (category == "Shirts") shirt = index;
-      if (category == "Pants") pants = index;
-      if (category == "Shoes") shoes = index;
-      if (category == "Hats") hat = index;
-      if (category == "Glasses") glasses = index;
+      selectedCategory = category;
+    });
+  }
+
+  void selectItem(ClosetItem item) {
+    setState(() {
+      selectedItems[selectedCategory] = item;
     });
   }
 
   Widget categoryButton(String name) {
-    final active = category == name;
+    final active = selectedCategory == name;
 
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 3),
         child: ElevatedButton(
-          onPressed: () {
-            setState(() {
-              category = name;
-            });
-          },
+          onPressed: () => selectCategory(name),
           style: ElevatedButton.styleFrom(
             backgroundColor: active ? Colors.orange : Colors.white12,
             foregroundColor: Colors.white,
@@ -77,46 +102,31 @@ class _DemoPageState extends State<DemoPage> {
           ),
           child: Text(
             name,
-            style: const TextStyle(fontSize: 11),
+            style: const TextStyle(fontSize: 10),
           ),
         ),
       ),
     );
   }
 
-  Widget clothingItem(String label, Color color, double width, double height) {
-    final textColor = color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+  Widget imageLayer(String category, double top, double width) {
+    final item = selectedItems[category];
+    if (item == null) return const SizedBox();
 
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.35),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+    return Positioned(
+      top: top,
+      child: Image.memory(
+        item.imageBytes,
+        width: width,
+        fit: BoxFit.contain,
       ),
     );
   }
 
   Widget mannequin() {
     return Container(
-      width: 320,
-      height: 510,
+      width: 330,
+      height: 520,
       decoration: BoxDecoration(
         color: const Color(0xFF151515),
         borderRadius: BorderRadius.circular(32),
@@ -126,7 +136,7 @@ class _DemoPageState extends State<DemoPage> {
         alignment: Alignment.center,
         children: [
           Positioned(
-            top: 35,
+            top: 42,
             child: Container(
               width: 78,
               height: 78,
@@ -137,70 +147,108 @@ class _DemoPageState extends State<DemoPage> {
             ),
           ),
           Positioned(
-            top: 18,
-            child: clothingItem("HAT", hatColors[hat], 120, 34),
+            top: 125,
+            child: Container(
+              width: 120,
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(60),
+              ),
+            ),
           ),
           Positioned(
-            top: 88,
-            child: clothingItem("GLASSES", glassesColors[glasses], 125, 28),
+            top: 300,
+            child: Container(
+              width: 95,
+              height: 170,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
           ),
-          Positioned(
-            top: 135,
-            child: clothingItem("SHIRT", shirtColors[shirt], 185, 135),
-          ),
-          Positioned(
-            top: 285,
-            child: clothingItem("PANTS", pantsColors[pants], 155, 145),
-          ),
-          Positioned(
-            top: 445,
-            child: clothingItem("SHOES", shoesColors[shoes], 165, 42),
-          ),
+
+          imageLayer("Hats", 18, 120),
+          imageLayer("Glasses", 88, 110),
+          imageLayer("Shirts", 120, 210),
+          imageLayer("Pants", 285, 170),
+          imageLayer("Shoes", 455, 160),
         ],
       ),
     );
   }
 
-  Widget wardrobe() {
-    final colors = getCurrentColors();
+  Widget closetPanel() {
+    final items = closets[selectedCategory]!;
 
     return Container(
-      height: 145,
+      height: 165,
       padding: const EdgeInsets.all(12),
       decoration: const BoxDecoration(
         color: Color(0xFF111111),
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: colors.length,
-        itemBuilder: (context, index) {
-          final color = colors[index];
-          final textColor = color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-
-          return GestureDetector(
-            onTap: () => selectItem(index),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: addItemToCloset,
             child: Container(
-              width: 115,
-              margin: const EdgeInsets.only(right: 12),
+              width: 110,
               decoration: BoxDecoration(
-                color: color,
+                color: Colors.orange,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: Colors.white30, width: 2),
               ),
-              child: Center(
-                child: Text(
-                  "$category\n${index + 1}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_photo_alternate, size: 34),
+                  SizedBox(height: 8),
+                  Text(
+                    "Add\nPhoto",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: items.isEmpty
+                ? Center(
+                    child: Text(
+                      "Add your $selectedCategory photo",
+                      style: const TextStyle(color: Colors.white54),
+                    ),
+                  )
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+
+                      return GestureDetector(
+                        onTap: () => selectItem(item),
+                        child: Container(
+                          width: 110,
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Image.memory(
+                            item.imageBytes,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -229,7 +277,7 @@ class _DemoPageState extends State<DemoPage> {
             ),
           ),
           Text(
-            "Selected Closet: $category",
+            "Closet: $selectedCategory",
             style: const TextStyle(color: Colors.orange, fontSize: 16),
           ),
           Expanded(
@@ -237,7 +285,7 @@ class _DemoPageState extends State<DemoPage> {
               child: mannequin(),
             ),
           ),
-          wardrobe(),
+          closetPanel(),
         ],
       ),
     );
