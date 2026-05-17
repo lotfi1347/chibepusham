@@ -1,5 +1,4 @@
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../state/wardrobe_state.dart';
@@ -33,7 +32,7 @@ class _AREngineState extends State<AREngine> {
 
       controller = CameraController(
         cameras.first,
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
         enableAudio: false,
       );
 
@@ -59,25 +58,25 @@ class _AREngineState extends State<AREngine> {
     super.dispose();
   }
 
-  Widget buildCameraFullScreen() {
+  Widget fullScreenCamera(BuildContext context) {
     if (!ready || controller == null || !controller!.value.isInitialized) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
-    final previewSize = controller!.value.previewSize;
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
+    final cameraRatio = controller!.value.aspectRatio;
 
-    if (previewSize == null) {
-      return CameraPreview(controller!);
+    double scale = cameraRatio / deviceRatio;
+
+    if (scale < 1) {
+      scale = 1 / scale;
     }
 
-    return SizedBox.expand(
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width: previewSize.height,
-          height: previewSize.width,
+    return ClipRect(
+      child: Transform.scale(
+        scale: scale,
+        child: Center(
           child: CameraPreview(controller!),
         ),
       ),
@@ -104,13 +103,14 @@ class _AREngineState extends State<AREngine> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
+        fit: StackFit.expand,
         children: [
           Positioned.fill(
-            child: buildCameraFullScreen(),
+            child: fullScreenCamera(context),
           ),
 
           Positioned(
-            top: 55,
+            top: 45,
             left: 18,
             child: SafeArea(
               child: CircleAvatar(
@@ -125,27 +125,25 @@ class _AREngineState extends State<AREngine> {
             ),
           ),
 
-          if (kIsWeb)
-            Positioned(
-              top: 55,
-              right: 18,
-              child: SafeArea(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Text(
-                    "WEB CAMERA",
-                    style: TextStyle(color: Colors.white),
-                  ),
+          Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Text(
+                  "Camera Preview",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
