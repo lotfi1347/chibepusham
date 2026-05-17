@@ -28,55 +28,28 @@ class TryOnHomePage extends StatefulWidget {
 class _TryOnHomePageState extends State<TryOnHomePage> {
   String selectedCategory = "shirts";
 
-  String shirt = "assets/clothes/shirts/shirt1.png";
-  String pants = "assets/clothes/pants/pants1.png";
-  String shoes = "assets/clothes/shoes/shoes1.png";
-  String hat = "assets/clothes/hats/hat1.png";
-  String glasses = "assets/clothes/glasses/glasses1.png";
+  Color shirtColor = Colors.orange;
+  Color pantsColor = Colors.blueGrey;
+  Color shoesColor = Colors.white;
+  Color hatColor = Colors.redAccent;
+  Color glassesColor = Colors.lightBlueAccent;
 
-  final Map<String, List<String>> wardrobe = {
-    "shirts": ["assets/clothes/shirts/shirt1.png"],
-    "pants": ["assets/clothes/pants/pants1.png"],
-    "shoes": ["assets/clothes/shoes/shoes1.png"],
-    "hats": ["assets/clothes/hats/hat1.png"],
-    "glasses": ["assets/clothes/glasses/glasses1.png"],
+  final Map<String, List<Color>> wardrobeColors = {
+    "shirts": [Colors.orange, Colors.green, Colors.purple, Colors.blue],
+    "pants": [Colors.blueGrey, Colors.brown, Colors.indigo, Colors.black87],
+    "shoes": [Colors.white, Colors.red, Colors.yellow, Colors.cyan],
+    "hats": [Colors.redAccent, Colors.amber, Colors.pink, Colors.teal],
+    "glasses": [Colors.lightBlueAccent, Colors.white, Colors.deepPurpleAccent, Colors.lime],
   };
 
-  void selectItem(String path) {
+  void selectColor(Color color) {
     setState(() {
-      if (selectedCategory == "shirts") shirt = path;
-      if (selectedCategory == "pants") pants = path;
-      if (selectedCategory == "shoes") shoes = path;
-      if (selectedCategory == "hats") hat = path;
-      if (selectedCategory == "glasses") glasses = path;
+      if (selectedCategory == "shirts") shirtColor = color;
+      if (selectedCategory == "pants") pantsColor = color;
+      if (selectedCategory == "shoes") shoesColor = color;
+      if (selectedCategory == "hats") hatColor = color;
+      if (selectedCategory == "glasses") glassesColor = color;
     });
-  }
-
-  Widget safeImage(String path, {double? width}) {
-    return Image.asset(
-      path,
-      width: width,
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          width: width ?? 80,
-          height: width ?? 80,
-          decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: const Center(
-            child: Text(
-              "PNG",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   Widget categoryButton(String name, String label) {
@@ -97,17 +70,14 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: active ? FontWeight.bold : FontWeight.normal,
-          ),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
   }
 
   Widget wardrobePanel() {
-    final items = wardrobe[selectedCategory] ?? [];
+    final colors = wardrobeColors[selectedCategory] ?? [];
 
     return Container(
       height: 135,
@@ -118,22 +88,31 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: colors.length,
         itemBuilder: (context, index) {
-          final item = items[index];
+          final color = colors[index];
 
           return GestureDetector(
-            onTap: () => selectItem(item),
+            onTap: () => selectColor(color),
             child: Container(
               width: 105,
               margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: color,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white24),
+                border: Border.all(color: Colors.white30, width: 2),
               ),
-              child: safeImage(item, width: 80),
+              child: Center(
+                child: Text(
+                  selectedCategory.toUpperCase(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             ),
           );
         },
@@ -165,47 +144,91 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
                 ),
               ),
             ),
+
             Positioned(
-              top: 135,
+              top: 130,
               child: Container(
-                width: 120,
-                height: 210,
+                width: 170,
+                height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(55),
+                  color: shirtColor,
+                  borderRadius: BorderRadius.circular(35),
                 ),
-              ),
-            ),
-            Positioned(
-              top: 325,
-              left: 95,
-              child: Container(
-                width: 38,
-                height: 170,
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 325,
-              right: 95,
-              child: Container(
-                width: 38,
-                height: 170,
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(25),
+                child: const Center(
+                  child: Text(
+                    "SHIRT",
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
 
-            Positioned(top: 28, child: safeImage(hat, width: 110)),
-            Positioned(top: 92, child: safeImage(glasses, width: 92)),
-            Positioned(top: 130, child: safeImage(shirt, width: 190)),
-            Positioned(top: 300, child: safeImage(pants, width: 165)),
-            Positioned(top: 470, child: safeImage(shoes, width: 150)),
+            Positioned(
+              top: 285,
+              child: Container(
+                width: 150,
+                height: 170,
+                decoration: BoxDecoration(
+                  color: pantsColor,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: const Center(
+                  child: Text(
+                    "PANTS",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 24,
+              child: Container(
+                width: 120,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: hatColor,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Center(child: Text("HAT")),
+              ),
+            ),
+
+            Positioned(
+              top: 98,
+              child: Container(
+                width: 105,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: glassesColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Center(
+                  child: Text(
+                    "GLASSES",
+                    style: TextStyle(fontSize: 10, color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 470,
+              child: Container(
+                width: 150,
+                height: 45,
+                decoration: BoxDecoration(
+                  color: shoesColor,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: const Center(
+                  child: Text(
+                    "SHOES",
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -221,27 +244,17 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(18, 16, 18, 8),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       "ChiBepusham",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(Icons.favorite_border),
-                  ),
+                  Icon(Icons.favorite_border),
                 ],
               ),
             ),
