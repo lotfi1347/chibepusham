@@ -13,109 +13,155 @@ class ChiBepushamApp extends StatelessWidget {
       title: 'ChiBepusham',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const TryOnHomePage(),
+      home: const HomePage(),
     );
   }
 }
 
-class TryOnHomePage extends StatefulWidget {
-  const TryOnHomePage({super.key});
+class ClosetItem {
+  final String name;
+  final Color color;
+
+  const ClosetItem(this.name, this.color);
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<TryOnHomePage> createState() => _TryOnHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _TryOnHomePageState extends State<TryOnHomePage> {
-  String selectedCategory = "shirts";
+class _HomePageState extends State<HomePage> {
+  ClosetItem shirt = const ClosetItem("Orange Shirt", Colors.orange);
+  ClosetItem pants = const ClosetItem("Blue Pants", Colors.blueGrey);
+  ClosetItem shoes = const ClosetItem("White Shoes", Colors.white);
+  ClosetItem hat = const ClosetItem("Red Hat", Colors.redAccent);
+  ClosetItem glasses = const ClosetItem("Blue Glasses", Colors.lightBlueAccent);
 
-  Color shirtColor = Colors.orange;
-  Color pantsColor = Colors.blueGrey;
-  Color shoesColor = Colors.white;
-  Color hatColor = Colors.redAccent;
-  Color glassesColor = Colors.lightBlueAccent;
-
-  final Map<String, List<Color>> wardrobeColors = {
-    "shirts": [Colors.orange, Colors.green, Colors.purple, Colors.blue],
-    "pants": [Colors.blueGrey, Colors.brown, Colors.indigo, Colors.black87],
-    "shoes": [Colors.white, Colors.red, Colors.yellow, Colors.cyan],
-    "hats": [Colors.redAccent, Colors.amber, Colors.pink, Colors.teal],
-    "glasses": [Colors.lightBlueAccent, Colors.white, Colors.deepPurpleAccent, Colors.lime],
+  final Map<String, List<ClosetItem>> closets = const {
+    "Shirts": [
+      ClosetItem("Orange Shirt", Colors.orange),
+      ClosetItem("Green Shirt", Colors.green),
+      ClosetItem("Purple Shirt", Colors.purple),
+      ClosetItem("Blue Shirt", Colors.blue),
+    ],
+    "Pants": [
+      ClosetItem("Blue Pants", Colors.blueGrey),
+      ClosetItem("Brown Pants", Colors.brown),
+      ClosetItem("Black Pants", Colors.black87),
+      ClosetItem("Indigo Pants", Colors.indigo),
+    ],
+    "Shoes": [
+      ClosetItem("White Shoes", Colors.white),
+      ClosetItem("Red Shoes", Colors.red),
+      ClosetItem("Yellow Shoes", Colors.yellow),
+      ClosetItem("Cyan Shoes", Colors.cyan),
+    ],
+    "Hats": [
+      ClosetItem("Red Hat", Colors.redAccent),
+      ClosetItem("Amber Hat", Colors.amber),
+      ClosetItem("Pink Hat", Colors.pink),
+      ClosetItem("Teal Hat", Colors.teal),
+    ],
+    "Glasses": [
+      ClosetItem("Blue Glasses", Colors.lightBlueAccent),
+      ClosetItem("White Glasses", Colors.white),
+      ClosetItem("Purple Glasses", Colors.deepPurpleAccent),
+      ClosetItem("Lime Glasses", Colors.lime),
+    ],
   };
 
-  void selectColor(Color color) {
-    setState(() {
-      if (selectedCategory == "shirts") shirtColor = color;
-      if (selectedCategory == "pants") pantsColor = color;
-      if (selectedCategory == "shoes") shoesColor = color;
-      if (selectedCategory == "hats") hatColor = color;
-      if (selectedCategory == "glasses") glassesColor = color;
-    });
-  }
+  void openCloset(String category) {
+    final items = closets[category] ?? [];
 
-  Widget categoryButton(String name, String label) {
-    final active = selectedCategory == name;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedCategory = name;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        margin: const EdgeInsets.only(right: 8),
-        decoration: BoxDecoration(
-          color: active ? Colors.orange : Colors.white10,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(color: Colors.white),
-        ),
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF111111),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
+      builder: (context) {
+        return SizedBox(
+          height: 310,
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Text(
+                category,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (category == "Shirts") shirt = item;
+                          if (category == "Pants") pants = item;
+                          if (category == "Shoes") shoes = item;
+                          if (category == "Hats") hat = item;
+                          if (category == "Glasses") glasses = item;
+                        });
+
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 135,
+                        margin: const EdgeInsets.only(right: 14),
+                        decoration: BoxDecoration(
+                          color: item.color,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white30, width: 2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: item.color == Colors.white || item.color == Colors.yellow
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget wardrobePanel() {
-    final colors = wardrobeColors[selectedCategory] ?? [];
-
-    return Container(
-      height: 135,
-      padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(
-        color: Color(0xFF111111),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: colors.length,
-        itemBuilder: (context, index) {
-          final color = colors[index];
-
-          return GestureDetector(
-            onTap: () => selectColor(color),
-            child: Container(
-              width: 105,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white30, width: 2),
-              ),
-              child: Center(
-                child: Text(
-                  selectedCategory.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+  Widget closetButton(String title, IconData icon) {
+    return GestureDetector(
+      onTap: () => openCloset(title),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white10,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 30),
+            const SizedBox(height: 8),
+            Text(title),
+          ],
+        ),
       ),
     );
   }
@@ -123,108 +169,102 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
   Widget mannequin() {
     return Center(
       child: Container(
-        width: 300,
-        height: 560,
+        width: 310,
+        height: 520,
         decoration: BoxDecoration(
           color: const Color(0xFF151515),
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(color: Colors.white12),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
             Positioned(
-              top: 45,
+              top: 42,
               child: Container(
-                width: 85,
-                height: 85,
+                width: 82,
+                height: 82,
                 decoration: const BoxDecoration(
                   color: Colors.white24,
                   shape: BoxShape.circle,
                 ),
               ),
             ),
-
             Positioned(
-              top: 130,
-              child: Container(
-                width: 170,
-                height: 150,
-                decoration: BoxDecoration(
-                  color: shirtColor,
-                  borderRadius: BorderRadius.circular(35),
-                ),
-                child: const Center(
-                  child: Text(
-                    "SHIRT",
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 285,
-              child: Container(
-                width: 150,
-                height: 170,
-                decoration: BoxDecoration(
-                  color: pantsColor,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: const Center(
-                  child: Text(
-                    "PANTS",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 24,
+              top: 28,
               child: Container(
                 width: 120,
-                height: 38,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: hatColor,
-                  borderRadius: BorderRadius.circular(30),
+                  color: hat.color,
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Center(child: Text("HAT")),
+                child: Center(child: Text(hat.name, style: const TextStyle(fontSize: 10))),
               ),
             ),
-
             Positioned(
-              top: 98,
+              top: 96,
               child: Container(
-                width: 105,
-                height: 28,
+                width: 115,
+                height: 26,
                 decoration: BoxDecoration(
-                  color: glassesColor,
-                  borderRadius: BorderRadius.circular(20),
+                  color: glasses.color,
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    "GLASSES",
-                    style: TextStyle(fontSize: 10, color: Colors.black),
+                    glasses.name,
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: glasses.color == Colors.white || glasses.color == Colors.yellow
+                          ? Colors.black
+                          : Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-
             Positioned(
-              top: 470,
+              top: 135,
+              child: Container(
+                width: 175,
+                height: 145,
+                decoration: BoxDecoration(
+                  color: shirt.color,
+                  borderRadius: BorderRadius.circular(34),
+                ),
+                child: Center(child: Text(shirt.name, textAlign: TextAlign.center)),
+              ),
+            ),
+            Positioned(
+              top: 292,
               child: Container(
                 width: 150,
-                height: 45,
+                height: 150,
                 decoration: BoxDecoration(
-                  color: shoesColor,
+                  color: pants.color,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Center(child: Text(pants.name, textAlign: TextAlign.center)),
+              ),
+            ),
+            Positioned(
+              top: 455,
+              child: Container(
+                width: 160,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: shoes.color,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    "SHOES",
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    shoes.name,
+                    style: TextStyle(
+                      color: shoes.color == Colors.white || shoes.color == Colors.yellow
+                          ? Colors.black
+                          : Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -237,56 +277,32 @@ class _TryOnHomePageState extends State<TryOnHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTitle = selectedCategory.toUpperCase();
-
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(18, 16, 18, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      "ChiBepusham",
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Icon(Icons.favorite_border),
-                ],
-              ),
+      appBar: AppBar(
+        title: const Text("ChiBepusham"),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(child: mannequin()),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 5,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              children: [
+                closetButton("Shirts", Icons.checkroom),
+                closetButton("Pants", Icons.accessibility_new),
+                closetButton("Shoes", Icons.directions_walk),
+                closetButton("Hats", Icons.person),
+                closetButton("Glasses", Icons.remove_red_eye),
+              ],
             ),
-
-            SizedBox(
-              height: 52,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  categoryButton("shirts", "Shirts"),
-                  categoryButton("pants", "Pants"),
-                  categoryButton("shoes", "Shoes"),
-                  categoryButton("hats", "Hats"),
-                  categoryButton("glasses", "Glasses"),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                "Selected: $currentTitle",
-                style: const TextStyle(color: Colors.white54),
-              ),
-            ),
-
-            Expanded(child: mannequin()),
-
-            wardrobePanel(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
